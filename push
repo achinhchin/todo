@@ -1,0 +1,7 @@
+#!/bin/sh
+set -e
+cd "$(dirname "$0")"
+git add -A -- . ':!settings.json' ':!j'
+git diff --cached --quiet && { echo "nothing to commit"; exit 0; }
+git commit -q -m "${*:-update}"
+git push
