@@ -135,7 +135,11 @@ body[data-sel] main{padding-bottom:150px}
 .cb.pop{animation:cbp .32s cubic-bezier(.3,1.6,.5,1)}.cb.pop::before{animation:cbk .26s .06s ease-out backwards}
 @keyframes cbp{0%{transform:scale(.8)}60%{transform:scale(1.14)}100%{transform:scale(1)}}
 @keyframes cbk{from{transform:rotate(45deg) scale(0)}to{transform:rotate(45deg) scale(1)}}
-@media (prefers-reduced-motion:reduce){.cb.pop,.cb.pop::before{animation:none}}
+.cb.un{--f:var(--c,var(--acc));animation:cbu .26s ease-out}.it.nt .cb.un{--f:var(--mute)}
+.cb.un::before{content:"";position:absolute;left:7px;top:3px;width:6px;height:11px;border:solid var(--paper);border-width:0 2.5px 2.5px 0;transform:rotate(45deg);animation:cbx .2s ease-in forwards}.exh .cb.un::before{left:9px;top:4px;width:7px;height:13px}
+@keyframes cbu{from{transform:scale(1.1);background:var(--f);border-color:var(--f)}to{transform:scale(1);background:transparent;border-color:var(--mute)}}
+@keyframes cbx{to{transform:rotate(45deg) scale(0);opacity:0}}
+@media (prefers-reduced-motion:reduce){.cb.pop,.cb.pop::before,.cb.un,.cb.un::before{animation:none}}
 
 .it.dn:not(.open):not(.sel):not(.now){background:color-mix(in srgb,var(--ink) 5%,transparent);border-radius:10px}
 .bk{font-size:26px;line-height:1;padding:0 6px;color:var(--mute);text-decoration:none}.bk:hover{color:var(--ink)}
