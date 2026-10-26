@@ -62,6 +62,11 @@ This rule is implemented twice and **the two copies must stay in sync**: `durati
 - `GET /api/stats` returns `{titles:[displayName...], total:{user:{lowerTitle:minutes}}}`.
   - `titles` is ordered by the first task id that used each title. It drives the stable colour index, so the same title has the same colour for both users.
 
+**HTTP caching:**
+- Static files are sent with `Cache-Control: no-cache` and API JSON with `no-store`.
+- Cloudflare (in front of todo.achinhchin.com) overrides `no-cache` on .css/.js with a 4h browser TTL. To get around that, `/` and `/index.html` are served by rewriting the HTML's `"style.css"` / `"app.js"` links to `?v=<file mtime, base36>`, which busts the cache.
+- Any new asset file referenced from index.html must be added to that list in main.go.
+
 **Cache:** the server keeps `cache map[date][]Task` and `stats` behind an RWMutex. `invalidate(dates...)` clears the given dates and the stats on every write.
 
 ## Frontend (app.js)

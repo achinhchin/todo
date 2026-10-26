@@ -252,7 +252,19 @@ func main() {
 	fs := http.FileServer(http.Dir("web"))
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache")
-		fs.ServeHTTP(w, r)
+		if r.URL.Path != "/" && r.URL.Path != "/index.html" {
+			fs.ServeHTTP(w, r)
+			return
+		}
+		h, _ := os.ReadFile("web/index.html")
+		s := string(h)
+		for _, f := range []string{"style.css", "app.js"} {
+			if st, err := os.Stat("web/" + f); err == nil {
+				s = strings.ReplaceAll(s, `"`+f+`"`, `"`+f+"?v="+strconv.FormatInt(st.ModTime().Unix(), 36)+`"`)
+			}
+		}
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.Write([]byte(s))
 	})
 	log.Printf("serving on :%d", cfg.Port)
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port), nil))
