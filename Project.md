@@ -137,14 +137,14 @@ This rule is implemented twice and **the two copies must stay in sync**: `durati
 
 **Time dialog** (`#dlg`, time only; also used for subtasks):
 - Controls: the No time / Fixed / Range switch, the `#pk` timeline picker, start/end `<input type=time>` with "next day" checkboxes, Cancel and Save.
-- Picker:
-  - `drawPk()` draws 1 row, 2 rows of 12h (picker < 760px) or 3 rows of 8h with 2-hour labels (picker < 420px, i.e. phones), and redraws on resize.
-  - It shows the user's other segments dimmed, plus `.sel` and drag pins (`em.pin.s` above the row, `em.pin.e` below the scale).
-  - Times snap to 15 min via `pkM()`.
-  - In fixed mode a tap or drag sets the time. In range mode a drag selects a span, and a tap moves the nearer edge.
-  - `pk.d.dy` keeps a pin drag on its own row.
-  - `setT()` writes the inputs, and `f.oninput=drawPk` keeps the picker in sync when someone types.
-- **Subtask mode:** when `S.ed.par` is set, the picker is one row spanning exactly the parent's start to end (labelled with real times, snap 15/5/1 min depending on the parent's length, `pk.lo/smax/emax/q` hold the limits). Sibling subtasks are drawn dimmed. When editing a parent with subtasks, its subtasks are shown as a thin dark strip (`.sb`) under the bar.
+- Picker (`#pk`): always **one** bar, zoomable.
+  - The window `pk.v0`/`pk.vw` (minutes) sits inside the domain `pk.lo..pk.hi`. For a task the domain is 0 to the later of 24h, the other tasks' end and the current selection (+3h, max 48h). For a subtask the domain is exactly its parent's start to end.
+  - **Default zoom** (`initWin()`): a range fills 50% of the window and is centred, clamped to the domain. A fixed task shows 6h around its time, a subtask without a range shows the whole parent.
+  - **Zoom:** two-finger pinch (also pans with the midpoint), mouse wheel or trackpad pinch (zooms around the pointer), Shift+wheel or horizontal scroll to pan, and the + / − buttons next to the mode switch. Minimum window is 30 min. Dragging near either end auto-pans.
+  - **Step** is dynamic: `pk.q` is the smallest of 1/5/15/30/60 min that is at least 18 px wide at the current zoom. Labels use the smallest of 1…360 min that leaves 58 px. Minimum range length is `pk.mn=min(q,15)`.
+  - `drawPk()` redraws the whole bar and also draws the user's other segments dimmed (or the sibling subtasks), the `.sel` span and the `.pin`s (`em.pin.s` above the row, `em.pin.e` below the scale).
+  - In fixed mode a tap or drag sets the time. In range mode a drag selects a span, and a tap moves the nearer edge. `setT()` writes the inputs, and `f.oninput=drawPk` keeps the picker in sync when someone types.
+- **Subtask mode:** when `S.ed.par` is set, the domain is the parent's range and the sibling subtasks are drawn dimmed. When editing a parent with subtasks, its subtasks are shown as a thin dark strip (`.sb`) under the bar.
 - Untimed tasks open the dialog in Fixed mode at the current time, rounded to 15 minutes (09:00 on other days).
 
 **Events:**

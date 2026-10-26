@@ -127,3 +127,7 @@ body[data-sel] main{padding-bottom:150px}
 #qd{width:min(420px,calc(100vw - 32px))}#qd p{color:var(--mute);font-size:15px}
 #qd form>button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;padding:10px 14px;border:1px solid var(--line);border-radius:12px}#qd form>button:hover{background:var(--card);border-color:var(--mute)}
 #qd form>button span{color:var(--mute);font-size:14px}#qd form>button small{color:var(--acc);font-size:12px}
+
+.tmr{display:flex;align-items:center;gap:8px}#zm button{padding:3px 12px;font-size:16px;line-height:1.2}
+#pk .pr{background:var(--line)}#pk .pr s{position:absolute;top:0;bottom:0;width:1px;background:color-mix(in srgb,var(--paper) 70%,transparent)}
+#pk .scale span,#pk .scale span:first-child,#pk .scale span:last-child{transform:translateX(-50%)}
