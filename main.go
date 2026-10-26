@@ -150,6 +150,7 @@ func invalidate(dates ...string) {
 
 func send(w http.ResponseWriter, v any) {
 	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", "no-store")
 	json.NewEncoder(w).Encode(v)
 }
 
@@ -248,7 +249,11 @@ func main() {
 		invalidate(d)
 		send(w, map[string]bool{"ok": true})
 	})
-	http.Handle("/", http.FileServer(http.Dir("web")))
+	fs := http.FileServer(http.Dir("web"))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache")
+		fs.ServeHTTP(w, r)
+	})
 	log.Printf("serving on :%d", cfg.Port)
 	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port), nil))
 }
