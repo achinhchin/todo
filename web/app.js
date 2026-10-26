@@ -7,7 +7,7 @@ const fd=s=>{const d=pd(s);return `${d.getDate()} ${M[d.getMonth()]} ${d.getFull
 const hm0=m=>`${pad(Math.floor(m/60)%24)}:${pad(m%60)}`,hm=m=>hm0(m)+(m>=1440?'<sup>+1</sup>':''),pt=v=>{const[h,m]=v.split(':');return h*60+ +m};
 const dur=m=>m>=60?`${Math.floor(m/60)}h${m%60?' '+m%60+'m':''}`:`${m}m`;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>`&#${c.charCodeAt(0)};`),key=t=>t.trim().toLowerCase();
-const S={date:today(),view:'day',mob:ls('mob')||'tabs',who:ls('who')||U[0],tasks:[],stats:{titles:[],total:{}},ci:new Map(),nm:new Map(),tok:0,tm:'none',ed:null};
+const S={date:today(),view:'day',mob:ls('mob')||'tabs',who:ls('who')||U[0],tasks:[],stats:{titles:[],total:{}},ci:new Map(),nm:new Map(),tok:0,tm:'none',ed:null,cl:new Set(JSON.parse(ls('cl')||'[]'))};
 const api=(m,b,q='')=>fetch('/api/tasks'+q,{method:m,body:b&&JSON.stringify(b),headers:{'Content-Type':'application/json'}}).then(r=>r.json());
 const wk=()=>{const o=(pd(S.date).getDay()+6)%7;return [...Array(7)].map((_,i)=>add(S.date,i-o))};
 const col=k=>{let i=S.ci.get(k);if(i==null){i=0;for(const c of k)i=(i*31+c.charCodeAt(0))%997}return `hsl(${(i*137.508+18)%360} 44% 54%)`};
@@ -30,10 +30,12 @@ const subSg=(P,l)=>{const tm=l.filter(x=>x.s>=0).sort((a,b)=>a.s-b.s);return tm.
 const sbar=P=>{const g=P.e>=0?subSg(P,subs(P)):[];return g.length?`<div class=sbar title="Subtasks">${g.map((x,i)=>`<i title="${esc(x.x.title)} · ${hm0(x.s)}–${hm0(x.e)}" style="left:${(x.s-P.s)/(P.e-P.s)*100}%;width:${(x.e-x.s)/(P.e-P.s)*100}%;background:${pc(P)};opacity:${x.x.d?.3:i%2?.55:.85}"></i>`).join('')}</div>`:''};
 const subRow=(P,x)=>`<div class="sr${x.d?' sdn':''}" style="--c:${pc(P)}"><button class="cb${x.d?' on':''}" data-cb=${x.id} aria-label=Done></button><input class=si data-f=title data-sid=${x.id} value="${esc(x.title)}" placeholder="Subtask" enterkeyhint=done autocomplete=off>${P.e>=0?`<button class="tbtn${x.s<0?' none':''}" data-tt=${x.id}>${x.s<0?'+ time':hm(x.s)+(x.e>=0?' – '+hm(x.e):'')}</button>`:''}<button class="xb red" data-del=${x.id} aria-label=Delete>×</button></div>`;
 const nowM=()=>{const d=new Date(),m=d.getHours()*60+d.getMinutes();return S.date==today()?m:S.date==add(today(),-1)?m+1440:null};
+const sv=t=>{const l=subs(t);if(!l.length)return '';const o=!S.cl.has(t.id);
+  return `<button class="sc${o?' ex':''}" data-tg=${t.id} aria-expanded=${o}><i>›</i>${l.filter(x=>x.d).length}/${l.length} subtasks</button>${sbar(t)}`+(o?`<div class=sl>${l.map(x=>`<div class="sli${x.d?' sdn':''}" style="--c:${pc(t)}"><button class="cb${x.d?' on':''}" data-cb=${x.id} aria-label=Done></button>${x.s>=0?`<em>${hm(x.s)}${x.e>=0?'–'+hm(x.e):''}</em>`:''}<span>${esc(x.title)||'<i>Untitled</i>'}</span></div>`).join('')}</div>`:'')};
 const item=(t,c)=>{const cb=`<button class="cb${t.d?' on':''}" data-cb=${t.id} aria-label=Done></button>`,cl=`it${t.s<0?' nt':''}${t.d?' dn':''}${c.includes(t.id)?' now':''}${S.sel?.has(t.id)?' sel':''}`,st=`data-id=${t.id} style="--c:${t.s>=0?col(key(t.title)):'transparent'}"`;
   return t.id==S.open?`<li class="${cl} open" ${st}><div class=exh>${cb}${t.s>=0?`<button class=tbtn data-tt=${t.id}>${hm(t.s)}${t.e>=0?' – '+hm(t.e):''}</button>`:`<button class="tbtn none" data-tt=${t.id}>+ Add time</button>`}<span class=sp></span><button class="xb red" data-del=${t.id}>Delete</button><button class=xb data-done=1>Done</button></div>`+
     `<input class=et data-f=title value="${esc(t.title)}" placeholder="Title" enterkeyhint=done autocomplete=off><textarea class=ed data-f=detail rows=2 placeholder="Add details…">${esc(t.detail)}</textarea><div class=subs>${sbar(t)}${subs(t).map(x=>subRow(t,x)).join('')}<button class=sadd data-as=${t.id}>+ subtask</button></div></li>`
-  :`<li class="${cl}" ${st}>${S.sel?'<i class=ck></i>':cb}${t.s>=0?`<time>${hm(t.s)}${t.e>=0?`<span>– ${hm(t.e)}</span>`:''}</time>`:''}<div><b>${esc(t.title)||'<i>Untitled</i>'}</b>${t.detail?`<p>${esc(t.detail)}</p>`:''}${subs(t).length?`<small class=sc>${subs(t).filter(x=>x.d).length}/${subs(t).length} subtasks</small>`:''}${sbar(t)}</div></li>`};
+  :`<li class="${cl}" ${st}>${S.sel?'<i class=ck></i>':cb}${t.s>=0?`<time>${hm(t.s)}${t.e>=0?`<span>– ${hm(t.e)}</span>`:''}</time>`:''}<div><b>${esc(t.title)||'<i>Untitled</i>'}</b>${t.detail?`<p>${esc(t.detail)}</p>`:''}${sv(t)}</div></li>`};
 const dayCol=u=>{const ts=S.tasks.filter(t=>t.user==u&&!t.par),t=tl(ts),a=agg(t.sg),n=nowM(),c=n==null?[]:t.sg.filter(x=>x.s<=n&&n<x.e).map(x=>x.id);
   return `<section class=col data-u=${u}><h2>${u}</h2><div class=sum>${bar(t,0,n)}<div class=rw>${ring(t.sg)}${lg(a)}</div></div><ul class=list>${ts.map(x=>item(x,c)).join('')}</ul><div class=acts><button class=add data-u=${u}>+ add a task</button>${ts.some(x=>x.s>=0)?`<button class=srt data-srt=${u} title="Sort by time">⇅<span> Sort by time</span></button>`:''}${ts.length?`<button class=srt data-sel=1 title="Select">☑<span> Select</span></button>`:''}</div></section>`};
 const weekCol=u=>{const ds=wk();
@@ -46,7 +48,9 @@ const render=()=>{Object.assign(document.body.dataset,{mob:S.mob,who:S.who,view:
   $('#dl').textContent=fd(S.date);$('#today').disabled=S.date==today();
   document.querySelectorAll('[data-v],[data-m],[data-w]').forEach(b=>b.classList.toggle('on',[S.view,S.mob,S.who].includes(b.dataset.v||b.dataset.m||b.dataset.w)));
   $('#app').innerHTML=`<div class=cols>${U.map(S.view=='day'?dayCol:weekCol).join('')}</div>`;document.querySelectorAll('.it.open .ed').forEach(sz);
-  $('#selbar').hidden=!S.sel;document.body.toggleAttribute('data-sel',!!S.sel);if(S.sel)$('#sc').textContent=`${S.sel.size} selected`};
+  $('#selbar').hidden=!S.sel;document.body.toggleAttribute('data-sel',!!S.sel);if(S.sel)$('#sc').textContent=`${S.sel.size} selected`
+  if(pp){const e=performance.now()-pp.t,b=e<450&&document.querySelector(`[data-cb="${pp.id}"]`);if(b)b.classList.add(pp.c),b.style.setProperty('--dl',-e+'ms');else if(e>=450)pp=null}};
+let pp=null;
 const sz=x=>{x.style.height='auto';x.style.height=x.scrollHeight+2+'px'},busy=()=>dlg.open||lp?.on||document.activeElement?.matches('#app input,#app textarea');
 const load=async()=>{const k=++S.tok,[t,s]=await Promise.all([api('GET',null,'?dates='+(S.view=='day'?[S.date]:wk()).join(',')),fetch('/api/stats').then(r=>r.json())]);
   if(k!=S.tok)return;S.tasks=t;S.stats=s;S.ci=new Map(s.titles.map((x,i)=>[key(x),i]));S.nm=new Map(s.titles.map(x=>[key(x),x]));render()};
@@ -149,7 +153,8 @@ document.onclick=async e=>{if(e.target.closest('#hap'))return;if(S.lp)return S.l
   else if(d.th){th(d.th);ls('th',d.th)}
   else if(d.t)setTm(d.t);
   else if(d.z){const b=pkB();zoomAt(d.z>0?.6:1/.6,b.left+b.width/2)}
-  else if(d.cb){const t=S.tasks.find(x=>x.id==+d.cb);t.d=t.d?0:1;hap();render();document.querySelector(`[data-cb="${t.id}"]`)?.classList.add(t.d?'pop':'un');await save(t);load()}
+  else if(d.tg){const i=+d.tg;S.cl.has(i)?S.cl.delete(i):S.cl.add(i);ls('cl',JSON.stringify([...S.cl]));render()}
+  else if(d.cb){const t=S.tasks.find(x=>x.id==+d.cb);t.d=t.d?0:1;hap();pp={id:t.id,c:t.d?'pop':'un',t:performance.now()};render();await save(t);load()}
   else if(d.tt)openTime(S.tasks.find(x=>x.id==+d.tt));
   else if(d.del){const t=S.tasks.find(x=>x.id==+d.del);if(!t.par)S.open=null;S.tasks=S.tasks.filter(x=>x!==t&&x.par!=t.id);render();await t._p;await api('DELETE',null,'/'+t.id);load()}
   else if(d.done)close();

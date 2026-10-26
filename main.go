@@ -163,7 +163,9 @@ func main() {
 		Test        bool
 	}
 	if b, err := os.ReadFile("settings.json"); err == nil {
-		json.Unmarshal(b, &cfg)
+		if err := json.Unmarshal(b, &cfg); err != nil {
+			log.Fatal("settings.json: ", err)
+		}
 	}
 	if cfg.Port == 0 {
 		cfg.Port = 1234
