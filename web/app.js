@@ -149,7 +149,7 @@ document.onclick=async e=>{if(e.target.closest('#hap'))return;if(S.lp)return S.l
   else if(d.th){th(d.th);ls('th',d.th)}
   else if(d.t)setTm(d.t);
   else if(d.z){const b=pkB();zoomAt(d.z>0?.6:1/.6,b.left+b.width/2)}
-  else if(d.cb){const t=S.tasks.find(x=>x.id==+d.cb);t.d=t.d?0:1;hap();render();await save(t);load()}
+  else if(d.cb){const t=S.tasks.find(x=>x.id==+d.cb);t.d=t.d?0:1;hap();render();t.d&&document.querySelector(`[data-cb="${t.id}"]`)?.classList.add('pop');await save(t);load()}
   else if(d.tt)openTime(S.tasks.find(x=>x.id==+d.tt));
   else if(d.del){const t=S.tasks.find(x=>x.id==+d.del);if(!t.par)S.open=null;S.tasks=S.tasks.filter(x=>x!==t&&x.par!=t.id);render();await t._p;await api('DELETE',null,'/'+t.id);load()}
   else if(d.done)close();

@@ -10,7 +10,7 @@ A daily todo and time-tracking web app for two fixed users, `model` and `chinchi
 ## Layout
 ```
 Todo/
-├── settings.json   {"port": 1234}, read at startup (default 1234)
+├── settings.json   read at startup: port (default 1234), auth (default http://localhost:1235), login URL, test (true = skip login)
 ├── main.go         HTTP server, SQLite, in-memory cache, stats
 ├── go.mod/go.sum   module "todo", dependency modernc.org/sqlite (pure Go, no cgo)
 ├── todo.db         created at runtime (WAL mode), not source

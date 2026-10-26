@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"sort"
 	"strconv"
@@ -156,12 +157,19 @@ func send(w http.ResponseWriter, v any) {
 }
 
 func main() {
-	var cfg struct{ Port int }
+	var cfg struct {
+		Port        int
+		Auth, Login string
+		Test        bool
+	}
 	if b, err := os.ReadFile("settings.json"); err == nil {
 		json.Unmarshal(b, &cfg)
 	}
 	if cfg.Port == 0 {
 		cfg.Port = 1234
+	}
+	if cfg.Auth == "" {
+		cfg.Auth = "http://localhost:1235"
 	}
 	var err error
 	if db, err = sql.Open("sqlite", "todo.db?_pragma=journal_mode(WAL)&_pragma=busy_timeout(5000)"); err != nil {
@@ -269,5 +277,35 @@ func main() {
 		w.Write([]byte(s))
 	})
 	log.Printf("serving on :%d", cfg.Port)
-	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port), nil))
+	var h http.Handler = gate(cfg.Auth, cfg.Login, http.DefaultServeMux)
+	if cfg.Test {
+		h = http.DefaultServeMux
+		log.Print("test mode: login disabled")
+	}
+	log.Fatal(http.ListenAndServe(":"+strconv.Itoa(cfg.Port), h))
+}
+
+func gate(auth, login string, next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		req, _ := http.NewRequest("GET", auth+"/api/check", nil)
+		if c, err := r.Cookie("llife"); err == nil {
+			req.AddCookie(c)
+		}
+		if res, err := http.DefaultClient.Do(req); err == nil {
+			res.Body.Close()
+			if res.StatusCode == 204 {
+				next.ServeHTTP(w, r)
+				return
+			}
+		}
+		if strings.HasPrefix(r.URL.Path, "/api/") {
+			http.Error(w, "unauthorized", 401)
+			return
+		}
+		sc := "http"
+		if r.Header.Get("X-Forwarded-Proto") == "https" || r.TLS != nil {
+			sc = "https"
+		}
+		http.Redirect(w, r, login+"/?next="+url.QueryEscape(sc+"://"+r.Host+r.URL.RequestURI()), 302)
+	})
 }

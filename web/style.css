@@ -131,3 +131,10 @@ body[data-sel] main{padding-bottom:150px}
 .tmr{display:flex;align-items:center;gap:8px}#zm button{padding:3px 12px;font-size:16px;line-height:1.2}
 #pk .pr{background:var(--line)}#pk .pr s{position:absolute;top:0;bottom:0;width:1px;background:color-mix(in srgb,var(--paper) 70%,transparent)}
 #pk .scale span,#pk .scale span:first-child,#pk .scale span:last-child{transform:translateX(-50%)}
+
+.cb.pop{animation:cbp .32s cubic-bezier(.3,1.6,.5,1)}.cb.pop::before{animation:cbk .26s .06s ease-out backwards}
+@keyframes cbp{0%{transform:scale(.8)}60%{transform:scale(1.14)}100%{transform:scale(1)}}
+@keyframes cbk{from{transform:rotate(45deg) scale(0)}to{transform:rotate(45deg) scale(1)}}
+@media (prefers-reduced-motion:reduce){.cb.pop,.cb.pop::before{animation:none}}
+
+.it.dn:not(.open):not(.sel):not(.now){background:color-mix(in srgb,var(--ink) 5%,transparent);border-radius:10px}
