@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Todo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;1,8..60,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script>try{document.documentElement.dataset.th=localStorage.th||"auto"}catch(e){}</script>
+</head>
+<body data-view="day">
+<header>
+  <div class="top">
+    <h1>To<em>do</em></h1>
+    <nav class="dn"><button id="prev" aria-label="Previous day">‹</button><button id="dl"></button><button id="next" aria-label="Next day">›</button></nav>
+    <button id="today" class="pill">Today</button>
+  </div>
+  <div class="sub">
+    <div class="seg"><button data-v="day">Day</button><button data-v="week">Week</button></div>
+    <span class="sp"></span>
+    <div class="seg" id="th"><button data-th="auto">Auto</button><button data-th="light">Light</button><button data-th="dark">Dark</button></div>
+    <div class="seg mobo" id="mob"><button data-m="split">Split</button><button data-m="tabs">Tabs</button></div>
+    <div class="seg mobo" id="who"><button data-w="model">model</button><button data-w="chinchin">chinchin</button></div>
+  </div>
+  <div id="cal" hidden></div>
+</header>
+<main id="app"></main>
+<dialog id="dlg">
+  <form id="f">
+    <h3 id="dh"></h3>
+    <div class="seg" id="tm"><button type="button" data-t="none">No time</button><button type="button" data-t="fixed">Fixed</button><button type="button" data-t="range">Range</button></div>
+    <div id="pk"></div>
+    <div class="tr" id="ts"><label>Start <input type="time" name="s"></label><label class="nx"><input type="checkbox" name="sn"> next day</label></div>
+    <div class="tr" id="te"><label>End <input type="time" name="e"></label><label class="nx"><input type="checkbox" name="en"> next day</label></div>
+    <footer><span class="sp"></span><button type="button" id="cx" class="ghost">Cancel</button><button class="pri">Save</button></footer>
+  </form>
+</dialog>
+<div id="selbar" hidden><div class="sbt"><b id="sc"></b><span class="sp"></span><button class="pill" data-sx="1">Done</button></div><div class="sbb"><span>Shift</span><button data-sh="-60">−1h</button><button data-sh="-15">−15m</button><button data-sh="15">+15m</button><button data-sh="60">+1h</button><span class="sp"></span><button class="red" data-sd="1">Delete</button></div></div>
+<label id="hap" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
+<script src="app.js"></script>
+</body>
+</html>
