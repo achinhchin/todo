@@ -82,18 +82,18 @@ const setT=(s,e)=>{s=Math.max(pk.lo,Math.min(pk.smax,s));f.s.value=hm0(s);f.sn.c
 const pkB=()=>$('#pk .pr').getBoundingClientRect(),pkF=x=>{const b=pkB();return Math.min(1,Math.max(0,(x-b.left)/b.width))};
 const pkM=e=>Math.round((pk.v0+pkF(e.clientX)*pk.vw)/pk.q)*pk.q;
 const zoomAt=(k,x)=>{const fr=pkF(x),m=pk.v0+fr*pk.vw;win(m-fr*pk.vw*k,pk.vw*k);drawPk()};
-const pkMove=e=>{const m=pkM(e),{s:s0,e:e0}=pk.d.c;if(pk.d.p)return pk.d.mv=1,S.tm=='fixed'||e0<0?setT(m):pk.d.p=='s'?setT(Math.min(m,e0-pk.mn),e0):setT(s0,Math.max(m,s0+pk.mn));if(S.tm=='fixed')return setT(m);if(m!=pk.d.a)pk.d.mv=1;if(pk.d.mv)setT(Math.min(pk.d.a,m),Math.max(pk.d.a,m))};
+const pkMove=e=>{const m=pkM(e),{s:s0,e:e0}=pk.d.c;if(pk.d.box){const n=Math.max(pk.lo,Math.min(pk.emax-(e0-s0),s0+m-pk.d.a));pk.d.mv=1;return setT(n,n+e0-s0)}if(pk.d.p)return pk.d.mv=1,S.tm=='fixed'||e0<0?setT(m):pk.d.p=='s'?setT(Math.min(m,e0-pk.mn),e0):setT(s0,Math.max(m,s0+pk.mn));if(S.tm=='fixed')return setT(m);if(m!=pk.d.a)pk.d.mv=1;if(pk.d.mv)setT(Math.min(pk.d.a,m),Math.max(pk.d.a,m))};
 const pkEdge=()=>{if(pk.raf)return;const t=()=>{const d=pk.d,e=pk.last;pk.raf=0;if(!d||!e||!(d.mv||d.p||S.tm=='fixed'))return;const b=pkB(),k=e.clientX<b.left+24?-1:e.clientX>b.right-24?1:0,o=pk.v0;if(!k)return;win(o+k*pk.vw*.012,pk.vw);if(pk.v0!=o){drawPk();pkMove(e)}pk.raf=requestAnimationFrame(t)};pk.raf=requestAnimationFrame(t)};
 const pkPz=()=>{const[a,b]=[...pk.ps.values()];return {d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY)||1,x:(a.clientX+b.clientX)/2}};
 $('#pk').onpointerdown=e=>{pk.ps.set(e.pointerId,e);$('#pk').setPointerCapture(e.pointerId);
   if(pk.ps.size>1){if(pk.d)setT(pk.d.c.s,pk.d.c.e>=0?pk.d.c.e:null);pk.d=null;const z=pkPz();pk.pz={d:z.d,vw:pk.vw,m:pk.v0+pkF(z.x)*pk.vw};return}
-  const m=pkM(e),pn=e.target.closest('.pin');pk.d={a:m,mv:0,c:cur(),p:pn?.classList[1]};pk.last=e;if(S.tm=='fixed'&&!pk.d.p)setT(m)};
+  const m=pkM(e),pn=e.target.closest('.pin'),c=cur(),raw=pk.v0+pkF(e.clientX)*pk.vw;pk.d={a:m,mv:0,c,p:pn?.classList[1],box:!pn&&S.tm=='range'&&c.s>=0&&c.e>=0&&raw>=c.s&&raw<=c.e};pk.last=e;if(S.tm=='fixed'&&!pk.d.p)setT(m)};
 $('#pk').onpointermove=e=>{if(pk.ps.has(e.pointerId))pk.ps.set(e.pointerId,e);
   if(pk.pz){if(pk.ps.size>1){const z=pkPz(),vw=pk.pz.vw*pk.pz.d/z.d;win(pk.pz.m-pkF(z.x)*vw,vw);drawPk()}return}
   if(!pk.d)return;pk.last=e;pkMove(e);pkEdge()};
 $('#pk').onpointerup=$('#pk').onpointercancel=e=>{pk.ps.delete(e.pointerId);if(pk.pz){if(pk.ps.size<2)pk.pz=null;return}const d=pk.d;pk.d=null;if(!d||S.tm!='range'||d.mv||d.p)return;const m=d.a,{s,e:en}=d.c;
   s<0?setT(m,m+Math.max(30,pk.q)):en<0?setT(Math.min(m,s),Math.max(m,s)):Math.abs(m-s)<=Math.abs(m-en)?setT(Math.min(m,en-pk.mn),en):setT(s,m)};
-$('#pk').onwheel=e=>{e.preventDefault();if(e.shiftKey||Math.abs(e.deltaX)>Math.abs(e.deltaY)){win(pk.v0+(e.deltaX||e.deltaY)/pkB().width*pk.vw,pk.vw);drawPk()}else zoomAt(Math.exp(Math.max(-60,Math.min(60,e.deltaY))*.003),e.clientX)};
+addEventListener('wheel',e=>{if(!dlg.open||$('#qd').open||$('#pk').hidden)return;e.preventDefault();if(e.shiftKey||Math.abs(e.deltaX)>Math.abs(e.deltaY)){win(pk.v0+(e.deltaX||e.deltaY)/pkB().width*pk.vw,pk.vw);drawPk()}else zoomAt(Math.exp(Math.max(-60,Math.min(60,e.deltaY))*.003),e.clientX)},{passive:false});
 f.oninput=drawPk;
 const openTime=t=>{S.ed=t;const P=t.par&&S.tasks.find(x=>x.id==t.par),n=new Date();$('#dh').textContent=(P?(P.title||'Untitled')+' › ':'')+(t.title||'Untitled');
   let v=t.s>=0?t.s:P?Math.max(P.s,...subs(P).filter(x=>x.s>=0&&x.id!=t.id).map(x=>x.e>=0?x.e:x.s)):S.date==today()?Math.round((n.getHours()*60+n.getMinutes())/15)*15:540,e=t.e;
