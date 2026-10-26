@@ -14,6 +14,8 @@ Todo/
 ├── settings.example.json   all keys with defaults; copy to settings.json
 ├── main.go         HTTP server, SQLite, in-memory cache, stats
 ├── go.mod/go.sum   module "todo", dependency modernc.org/sqlite (pure Go, no cgo)
+├── push            ./push [message]: add, commit and push (skips settings.json and j); default message "update"
+├── CLAUDE.md       this file (project guide, loaded automatically in every session)
 ├── todo.db         created at runtime (WAL mode), not source
 ├── todo            built binary
 └── web/            static files served from disk at "/" (http.Dir("web"), not embedded)
@@ -22,6 +24,10 @@ Todo/
     └── app.js      all state, rendering and events
 ```
 Run with `go build -o todo . && ./todo`, then open http://localhost:1234. The server must be started from the project directory because it uses relative paths for `settings.json`, `todo.db` and `web/`.
+
+## Auth and test mode
+- `gate()` in main.go wraps every route. For each request it calls `<auth>/api/check` with the visitor's `llife` cookie; a 204 lets the request through. Otherwise `/api/*` gets 401 and pages are redirected to `<login>/?next=<original URL>`.
+- `settings.json` must be valid JSON: a parse error stops the server with `settings.json: ...` instead of silently using defaults. `"test": true` skips the gate (log line `test mode: login disabled`), so never enable it on the public server. Keep `settings.json` and the curl cookie file `j` out of commits (`./push` already skips them).
 
 ## Data model
 SQLite table `tasks`:
@@ -125,7 +131,7 @@ This rule is implemented twice and **the two copies must stay in sync**: `durati
 - Tapping outside, Done or Esc runs `close()`. `close()` blurs first so the field saves. A task left with an empty title and empty detail is deleted.
 - **Adding a task** (`addT`): a temporary task with a negative id is pushed and its title focused **synchronously**, so the iOS keyboard opens. Then it is POSTed, and `t._p` (that promise) swaps in the real id. `save(t)` awaits `t._p` first.
   - Default time comes from `nw(u)`: after a range, the new task continues from that range's end with the same length; after a fixed time, it starts 30 minutes later; otherwise there is no time.
-- **Checkbox:** `data-cb` toggles `t.d`, plays haptic feedback and saves.
+- **Checkbox:** `data-cb` toggles `t.d`, plays haptic feedback and saves. The animation (`.cb.pop` when ticked, `.cb.un` when unticked) is added to the clicked box by `render()` from `pp` (id, class, start time). `load()` rebuilds the DOM right after the save, so `render()` re-applies the class with `--dl` (a negative animation delay) to carry the animation on instead of restarting it. There is deliberately no `prefers-reduced-motion` override.
 - **Long-press reorder:**
   - A 380 ms press on a collapsed `.it` starts a drag (`lp`). Moving more than 8 px before that cancels it, so the page can scroll.
   - While dragging, `touchmove` is prevented, siblings swap as you pass their midpoints, and the nearest scroller (the `.col` in split mode) auto-scrolls.
@@ -135,7 +141,9 @@ This rule is implemented twice and **the two copies must stay in sync**: `durati
   - `shift(d)` clamps the shift so the whole selection stays inside 0–2879, then calls `/api/bulk`.
   - Delete (single or bulk) runs immediately, with no confirmation.
 
-**Subtask UI:** the expanded task has a `.subs` block: a mini division bar `.sbar` (parent range), a `.sr` row per subtask (checkbox, title input `.si`, time chip, ×) and `+ subtask`. A collapsed task shows `n/m subtasks` and the `.sbar`. Subtask rows are not selectable, draggable or sortable. The date nav is `.dnav`; it used to be `.dn`, which collided with the done-task class and stretched every button inside done tasks. Keep class names unique per role.
+**Subtask list in the task row:** a task with subtasks gets `.hs`. Its content shows a `.sh` line (the `.sc` toggle button `› n/m subtasks` plus the slim `.sbar`) and, when expanded, a `.sl` list of `.sli` rows (round checkbox, title, time pill). The collapsed ids are kept in `S.cl` and localStorage `cl` (default is expanded). The toggle is large on touch screens. Time text is stacked and centred (start, a short dash `<i>`, end).
+
+**Subtask UI (expanded task):** the expanded task has a `.subs` block: a mini division bar `.sbar` (parent range), a `.sr` row per subtask (checkbox, title input `.si`, time chip, ×) and `+ subtask`. A collapsed task shows `n/m subtasks` and the `.sbar`. Subtask rows are not selectable, draggable or sortable. The date nav is `.dnav`; it used to be `.dn`, which collided with the done-task class and stretched every button inside done tasks. Keep class names unique per role.
 
 **Time dialog** (`#dlg`, time only; also used for subtasks):
 - Controls: the No time / Fixed / Range switch, the `#pk` timeline picker, start/end `<input type=time>` with "next day" checkboxes, Cancel and Save.
@@ -147,10 +155,13 @@ This rule is implemented twice and **the two copies must stay in sync**: `durati
   - `drawPk()` redraws the whole bar and also draws the user's other segments dimmed (or the sibling subtasks), the `.sel` span and the `.pin`s (`em.pin.s` above the row, `em.pin.e` below the scale).
   - In fixed mode a tap or drag sets the time. In range mode a drag selects a span, and a tap moves the nearer edge. `setT()` writes the inputs, and `f.oninput=drawPk` keeps the picker in sync when someone types.
 - **Subtask mode:** when `S.ed.par` is set, the domain is the parent's range and the sibling subtasks are drawn dimmed. When editing a parent with subtasks, its subtasks are shown as a thin dark strip (`.sb`) under the bar.
+- **Gestures:** dragging inside the selected range (range mode) moves the whole box and keeps its length; the pins resize it; dragging elsewhere draws a new range.
+- **Wheel:** while `#dlg` is open the window-level `wheel` listener (non-passive) handles the whole popup. Each gesture is locked to one axis (the stronger one at its start, released after 150 ms without events). Vertical (and pinch/ctrl) zooms around the pointer and is cancelled. Shift+wheel pans and is cancelled.
+- **Swipe sink:** horizontal trackpad scrolls are **not** cancelled, because Safari still starts a back/forward swipe for cancelled wheel events when the page cannot scroll sideways. Instead the form sits in `#sw`, a real horizontal scroller (20000px `::after` spacer, hidden scrollbar) with the form `position:sticky;left:0` so it never moves. `swc()` centres it on open and whenever it nears an edge, so it is never pinned and the browser never swipes. `sw.onscroll` turns the scroll delta into a pan. There is no history trick; close the dialog with plain `dlg.close()`.
 - Untimed tasks open the dialog in Fixed mode at the current time, rounded to 15 minutes (09:00 on other days).
 
 **Events:**
-- A single delegated `document.onclick` dispatches on the `id` and `data-*` attributes: `v m w th t cm cd cb tt del done sel sh sd sx srt u id d`.
+- A single delegated `document.onclick` dispatches on the `id` and `data-*` attributes: `v m w th t z cm cd cb tg tt del as done sel sh sd sx srt u id d`.
 - A `change` listener saves inline edits, and an `input` listener auto-sizes textareas.
 - The ←/→ keys change the day.
 - Data is polled every 15 s, and reloaded when the tab becomes visible again. Both are **skipped while `busy()`**: dialog open, drag active, or an input inside `#app` focused. This is because `render()` replaces `innerHTML` and would kill the focus.
@@ -171,6 +182,7 @@ This rule is implemented twice and **the two copies must stay in sync**: `durati
 ## Notes and gotchas
 - There is no auth or user management; the users are hard-coded in `U` in app.js.
 - The stats cache rebuilds by scanning the whole table after any write. That is fine at this scale.
+- Keep class names unique per role (`.dn` once meant both the date nav and a done task).
 - Never write an `on*` handler as `e=>cond&&x()`. When `cond` is false, the handler returns `false`, which cancels the event's default action. That bug once stopped the dialog's Save button from submitting.
 - `[hidden]{display:none!important}` is needed because classes like `.tr{display:flex}` would otherwise override the `hidden` attribute.
 - On macOS, copying a rebuilt binary over a running or recently signed one can make it get killed silently. Rebuild it in place with `go build -o`.

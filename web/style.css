@@ -164,3 +164,4 @@ body[data-sel] main{padding-bottom:150px}
 #pk .sel{cursor:grab}
 
 html:has(dialog[open]),body:has(dialog[open]),dialog{overscroll-behavior:none}
+#sw{display:flex;overflow-x:scroll;overscroll-behavior:none;scrollbar-width:none}#sw::-webkit-scrollbar{display:none}#sw::after{content:"";flex:none;width:20000px}#sw>form{flex:none;width:100%;box-sizing:border-box;position:sticky;left:0}

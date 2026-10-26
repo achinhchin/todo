@@ -26,7 +26,7 @@
   <div id="cal" hidden></div>
 </header>
 <main id="app"></main>
-<dialog id="dlg">
+<dialog id="dlg"><div id="sw">
   <form id="f">
     <h3 id="dh"></h3>
     <div class="tmr"><div class="seg" id="tm"><button type="button" data-t="none">No time</button><button type="button" data-t="fixed">Fixed</button><button type="button" data-t="range">Range</button></div><span class="sp"></span><span class="seg" id="zm"><button type="button" data-z="1" aria-label="Zoom in">+</button><button type="button" data-z="-1" aria-label="Zoom out">−</button></span></div>
@@ -35,7 +35,7 @@
     <div class="tr" id="te"><label>End <input type="time" name="e"></label><label class="nx"><input type="checkbox" name="en"> next day</label></div>
     <footer><span class="sp"></span><button type="button" id="cx" class="ghost">Cancel</button><button class="pri">Save</button></footer>
   </form>
-</dialog>
+</div></dialog>
 <dialog id="qd"><form method="dialog"><h3>Move subtasks?</h3><p>This task has subtasks with times. Where should they go?</p>
   <button value="s" data-q="s"><b>Stay in place</b><span>keep their current times</span><small></small></button>
   <button value="l" data-q="l"><b>Snap left</b><span>keep distance from the start</span><small></small></button>

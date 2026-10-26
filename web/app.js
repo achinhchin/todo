@@ -93,18 +93,17 @@ $('#pk').onpointermove=e=>{if(pk.ps.has(e.pointerId))pk.ps.set(e.pointerId,e);
   if(!pk.d)return;pk.last=e;pkMove(e);pkEdge()};
 $('#pk').onpointerup=$('#pk').onpointercancel=e=>{pk.ps.delete(e.pointerId);if(pk.pz){if(pk.ps.size<2)pk.pz=null;return}const d=pk.d;pk.d=null;if(!d||S.tm!='range'||d.mv||d.p)return;const m=d.a,{s,e:en}=d.c;
   s<0?setT(m,m+Math.max(30,pk.q)):en<0?setT(Math.min(m,s),Math.max(m,s)):Math.abs(m-s)<=Math.abs(m-en)?setT(Math.min(m,en-pk.mn),en):setT(s,m)};
-let wl=null,wt=0;
-addEventListener('wheel',e=>{if(!dlg.open||$('#qd').open)return;e.preventDefault();if($('#pk').hidden)return;
-  let x=e.deltaX,y=e.deltaY;if(e.shiftKey&&!x)x=y,y=0;const n=performance.now();if(!wl||n-wt>150)wl=e.ctrlKey||Math.abs(y)>=Math.abs(x)?'y':'x';wt=n;
+let wl=null,wt=0;const sw=$('#sw'),swc=()=>{sw.scrollLeft=10000;sw.x=sw.scrollLeft};
+sw.onscroll=()=>{const d=sw.scrollLeft-sw.x;sw.x=sw.scrollLeft;if(d&&!$('#pk').hidden){win(pk.v0+d/pkB().width*pk.vw,pk.vw);drawPk()}if(sw.x<2000||sw.x>18000)swc()};
+addEventListener('wheel',e=>{if(!dlg.open||$('#qd').open)return;
+  let x=e.deltaX,y=e.deltaY;const n=performance.now(),sh=e.shiftKey&&!x;if(!wl||n-wt>150)wl=e.ctrlKey||!sh&&Math.abs(y)>=Math.abs(x)?'y':'x';wt=n;
+  if(wl=='x'&&!sh&&sw.contains(e.target))return;e.preventDefault();if($('#pk').hidden)return;if(sh)x=y,y=0;
   if(wl=='x'){win(pk.v0+x/pkB().width*pk.vw,pk.vw);drawPk()}else zoomAt(Math.exp(Math.max(-60,Math.min(60,y))*(e.ctrlKey?.012:.003)),e.clientX)},{passive:false});
-let hb=0;const unp=()=>{if(history.state?.p&&!hb){hb=1;history.back()}},shut=()=>{dlg.close();unp()};
-addEventListener('popstate',()=>{hb=0;if(dlg.open)history.pushState({p:1},'');else unp()});
-dlg.addEventListener('close',unp);
 f.oninput=drawPk;
 const openTime=t=>{S.ed=t;const P=t.par&&S.tasks.find(x=>x.id==t.par),n=new Date();$('#dh').textContent=(P?(P.title||'Untitled')+' › ':'')+(t.title||'Untitled');
   let v=t.s>=0?t.s:P?Math.max(P.s,...subs(P).filter(x=>x.s>=0&&x.id!=t.id).map(x=>x.e>=0?x.e:x.s)):S.date==today()?Math.round((n.getHours()*60+n.getMinutes())/15)*15:540,e=t.e;
   if(P){if(v>=P.e)v=P.s;if(t.s<0)e=P.e}
-  f.s.value=hm0(v);f.sn.checked=v>=1440;f.e.value=e>=0?hm0(e):'';f.en.checked=e>=1440;setTm(e>=0?'range':'fixed');dlg.showModal();history.pushState({p:1},'');initWin();drawPk()};
+  f.s.value=hm0(v);f.sn.checked=v>=1440;f.e.value=e>=0?hm0(e):'';f.en.checked=e>=1440;setTm(e>=0?'range':'fixed');dlg.showModal();swc();initWin();drawPk()};
 const save=async t=>{await t._p;return api('POST',t)};
 const addT=(u,par)=>{const t=par?{id:0,user:u,date:S.date,ord:0,title:'',detail:'',s:-1,e:-1,par}:nw(u);t.id=-Date.now();const tmp=t.id;S.tasks.push(t);if(!par)S.open=tmp;render();$(par?`[data-sid="${tmp}"]`:'.it.open .et')?.focus();
   t._p=api('POST',{...t,id:0}).then(r=>{t.id=r.id;t.ord=r.ord;if(S.open==tmp)S.open=r.id;document.querySelectorAll(`[data-id="${tmp}"],[data-tt="${tmp}"],[data-del="${tmp}"],[data-cb="${tmp}"],[data-sid="${tmp}"]`).forEach(x=>['id','tt','del','cb','sid'].forEach(k=>x.dataset[k]&&(x.dataset[k]=r.id)))})};
@@ -131,9 +130,9 @@ const tv=(v,n,def)=>v?pt(v)+(n?1440:0):def;
 f.onsubmit=async e=>{e.preventDefault();let s=-1,en=-1;
   if(S.tm!='none')s=tv(f.s.value,f.sn.checked,0);if(S.tm=='range'){en=tv(f.e.value,f.en.checked,s);if(en<s)en+=1440}
   const t=S.ed,P=t.par&&S.tasks.find(x=>x.id==t.par);if(P&&s>=0){s=Math.max(P.s,Math.min(s,P.e-1));if(en>=0)en=Math.min(P.e,Math.max(en,s+1))}
-  const r=await resub(t,s,en);if(!r)return;Object.assign(t,{s,e:en});shut();apply(r);render();await save(t);r.put.length+r.del.length?bulk(r):load()};
-$('#cx').onclick=()=>shut();
-dlg.onclick=e=>{if(e.target==dlg)shut()};
+  const r=await resub(t,s,en);if(!r)return;Object.assign(t,{s,e:en});dlg.close();apply(r);render();await save(t);r.put.length+r.del.length?bulk(r):load()};
+$('#cx').onclick=()=>dlg.close();
+dlg.onclick=e=>{if(e.target==dlg)dlg.close()};
 document.addEventListener('change',e=>{const el=e.target.closest('[data-f]'),t=el&&S.tasks.find(x=>x.id==(el.dataset.sid||S.open));if(t){t[el.dataset.f]=el.value.trim();save(t)}});
 document.addEventListener('input',e=>e.target.matches('.ed')&&sz(e.target));
 let lp=null;const hap=()=>{try{navigator.vibrate?.(10)}catch(e){}$('#hap').click()};
