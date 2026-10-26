@@ -34,9 +34,20 @@ SQLite table `tasks`:
 | s | INTEGER | start, minutes from 00:00 of `date`; **-1 = no time** |
 | e | INTEGER | end in minutes; **-1 = fixed time** (only `s`), ≥0 = range |
 | d | INTEGER | 1 = done (checkbox). Added by an `ALTER TABLE` at startup |
+| par | INTEGER | parent task id; 0 = top-level task, >0 = **subtask** (same user/date as its parent). Added by an `ALTER TABLE` at startup |
 | p | INTEGER | legacy "parallel" flag. It may exist in old DBs but is **unused** |
 
 **Times after midnight:** a value ≥ 1440 means the next day (`⁺¹`). Values are capped at 2879.
+
+## Subtasks
+- A subtask is a `tasks` row with `par>0`. It never counts towards totals, the bar, the ring or the stats colour index: `durations()` and `tl()` skip `par>0`, and `getStats` leaves their titles out of `titles`.
+- A subtask's time (`s`/`e`, same none/fixed/range modes) lives inside its parent's range and is only offered when the parent is a range. Fixed subtasks last until the next timed sibling or the parent's end (`subSg()`).
+- Deleting a parent deletes its subtasks (`WHERE id=? OR par=?`, in both DELETE and `/api/bulk`).
+- When a parent's time changes (time dialog Save, or select-mode Shift), subtasks are re-fitted by `rf(cs,m)`, which asks the user through `#qd` unless the change is a pure stretch (one edge fixed, the other moving outwards):
+  - **Stay** keeps absolute times, **Snap left** keeps the distance from the parent's start, **Snap right** keeps the distance from its end.
+  - The result is cropped to the new parent range; a subtask left with no time is removed. The buttons show how many would be removed.
+  - If the parent stops being a range, its subtasks lose their times.
+  - Changes go to the server through `/api/bulk` (`put` s/e, `del` ids).
 
 ## Timeline rule
 This rule is implemented twice and **the two copies must stay in sync**: `durations()` in main.go and `tl()` in app.js.
@@ -122,7 +133,9 @@ This rule is implemented twice and **the two copies must stay in sync**: `durati
   - `shift(d)` clamps the shift so the whole selection stays inside 0–2879, then calls `/api/bulk`.
   - Delete (single or bulk) runs immediately, with no confirmation.
 
-**Time dialog** (`#dlg`, time only):
+**Subtask UI:** the expanded task has a `.subs` block: a mini division bar `.sbar` (parent range), a `.sr` row per subtask (checkbox, title input `.si`, time chip, ×) and `+ subtask`. A collapsed task shows `n/m subtasks` and the `.sbar`. Subtask rows are not selectable, draggable or sortable. Never reuse the class `.dn` for new things: it is the done-task class and also the date nav.
+
+**Time dialog** (`#dlg`, time only; also used for subtasks):
 - Controls: the No time / Fixed / Range switch, the `#pk` timeline picker, start/end `<input type=time>` with "next day" checkboxes, Cancel and Save.
 - Picker:
   - `drawPk()` draws 1 row, 2 rows of 12h (picker < 760px) or 3 rows of 8h with 2-hour labels (picker < 420px, i.e. phones), and redraws on resize.
@@ -131,6 +144,7 @@ This rule is implemented twice and **the two copies must stay in sync**: `durati
   - In fixed mode a tap or drag sets the time. In range mode a drag selects a span, and a tap moves the nearer edge.
   - `pk.d.dy` keeps a pin drag on its own row.
   - `setT()` writes the inputs, and `f.oninput=drawPk` keeps the picker in sync when someone types.
+- **Subtask mode:** when `S.ed.par` is set, the picker is one row spanning exactly the parent's start to end (labelled with real times, snap 15/5/1 min depending on the parent's length, `pk.lo/smax/emax/q` hold the limits). Sibling subtasks are drawn dimmed. When editing a parent with subtasks, its subtasks are shown as a thin dark strip (`.sb`) under the bar.
 - Untimed tasks open the dialog in Fixed mode at the current time, rounded to 15 minutes (09:00 on other days).
 
 **Events:**

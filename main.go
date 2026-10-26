@@ -24,6 +24,7 @@ type Task struct {
 	S      int    `json:"s"`
 	E      int    `json:"e"`
 	D      int    `json:"d"`
+	Par    int64  `json:"par"`
 }
 
 var (
@@ -40,7 +41,7 @@ func dayTasks(date string) []Task {
 	if ok {
 		return t
 	}
-	rows, err := db.Query(`SELECT id,user,date,ord,title,detail,s,e,d FROM tasks WHERE date=? ORDER BY ord,id`, date)
+	rows, err := db.Query(`SELECT id,user,date,ord,title,detail,s,e,d,par FROM tasks WHERE date=? ORDER BY ord,id`, date)
 	if err != nil {
 		return nil
 	}
@@ -48,7 +49,7 @@ func dayTasks(date string) []Task {
 	t = []Task{}
 	for rows.Next() {
 		var x Task
-		rows.Scan(&x.ID, &x.User, &x.Date, &x.Ord, &x.Title, &x.Detail, &x.S, &x.E, &x.D)
+		rows.Scan(&x.ID, &x.User, &x.Date, &x.Ord, &x.Title, &x.Detail, &x.S, &x.E, &x.D, &x.Par)
 		t = append(t, x)
 	}
 	mu.Lock()
@@ -66,7 +67,7 @@ func durations(ts []Task, out map[string]int) {
 	var v []iv
 	end := 1440
 	for _, t := range ts {
-		if t.S >= 0 {
+		if t.S >= 0 && t.Par == 0 {
 			tm = append(tm, t)
 			end = max(end, t.S, t.E)
 		}
@@ -106,20 +107,20 @@ func getStats() any {
 	if s != nil {
 		return s
 	}
-	rows, _ := db.Query(`SELECT id,user,date,ord,title,detail,s,e,d FROM tasks ORDER BY date,user,ord,id`)
+	rows, _ := db.Query(`SELECT id,user,date,ord,title,detail,s,e,d,par FROM tasks ORDER BY date,user,ord,id`)
 	defer rows.Close()
 	groups := map[string][]Task{}
 	titles, seen := []string{}, map[string]bool{}
 	var all []Task
 	for rows.Next() {
 		var x Task
-		rows.Scan(&x.ID, &x.User, &x.Date, &x.Ord, &x.Title, &x.Detail, &x.S, &x.E, &x.D)
+		rows.Scan(&x.ID, &x.User, &x.Date, &x.Ord, &x.Title, &x.Detail, &x.S, &x.E, &x.D, &x.Par)
 		groups[x.User+"|"+x.Date] = append(groups[x.User+"|"+x.Date], x)
 		all = append(all, x)
 	}
 	sort.Slice(all, func(i, j int) bool { return all[i].ID < all[j].ID })
 	for _, x := range all {
-		if k := strings.ToLower(strings.TrimSpace(x.Title)); !seen[k] {
+		if k := strings.ToLower(strings.TrimSpace(x.Title)); !seen[k] && x.Par == 0 {
 			seen[k] = true
 			titles = append(titles, strings.TrimSpace(x.Title))
 		}
@@ -171,6 +172,7 @@ func main() {
 		log.Fatal(err)
 	}
 	db.Exec(`ALTER TABLE tasks ADD COLUMN d INTEGER DEFAULT 0`)
+	db.Exec(`ALTER TABLE tasks ADD COLUMN par INTEGER DEFAULT 0`)
 
 	http.HandleFunc("GET /api/tasks", func(w http.ResponseWriter, r *http.Request) {
 		out := []Task{}
@@ -188,12 +190,12 @@ func main() {
 		}
 		if t.ID == 0 {
 			db.QueryRow(`SELECT COALESCE(MAX(ord),0)+1 FROM tasks WHERE date=? AND user=?`, t.Date, t.User).Scan(&t.Ord)
-			res, _ := db.Exec(`INSERT INTO tasks(user,date,ord,title,detail,s,e,d) VALUES(?,?,?,?,?,?,?,?)`, t.User, t.Date, t.Ord, t.Title, t.Detail, t.S, t.E, t.D)
+			res, _ := db.Exec(`INSERT INTO tasks(user,date,ord,title,detail,s,e,d,par) VALUES(?,?,?,?,?,?,?,?,?)`, t.User, t.Date, t.Ord, t.Title, t.Detail, t.S, t.E, t.D, t.Par)
 			t.ID, _ = res.LastInsertId()
 		} else {
 			var old string
 			db.QueryRow(`SELECT date FROM tasks WHERE id=?`, t.ID).Scan(&old)
-			db.Exec(`UPDATE tasks SET user=?,date=?,ord=?,title=?,detail=?,s=?,e=?,d=? WHERE id=?`, t.User, t.Date, t.Ord, t.Title, t.Detail, t.S, t.E, t.D, t.ID)
+			db.Exec(`UPDATE tasks SET user=?,date=?,ord=?,title=?,detail=?,s=?,e=?,d=?,par=? WHERE id=?`, t.User, t.Date, t.Ord, t.Title, t.Detail, t.S, t.E, t.D, t.Par, t.ID)
 			invalidate(old)
 		}
 		invalidate(t.Date)
@@ -230,7 +232,7 @@ func main() {
 		for _, id := range b.Del {
 			var d string
 			tx.QueryRow(`SELECT date FROM tasks WHERE id=?`, id).Scan(&d)
-			tx.Exec(`DELETE FROM tasks WHERE id=?`, id)
+			tx.Exec(`DELETE FROM tasks WHERE id=? OR par=?`, id, id)
 			ds = append(ds, d)
 		}
 		for _, t := range b.Put {
@@ -245,7 +247,7 @@ func main() {
 		id, _ := strconv.Atoi(r.PathValue("id"))
 		var d string
 		db.QueryRow(`SELECT date FROM tasks WHERE id=?`, id).Scan(&d)
-		db.Exec(`DELETE FROM tasks WHERE id=?`, id)
+		db.Exec(`DELETE FROM tasks WHERE id=? OR par=?`, id, id)
 		invalidate(d)
 		send(w, map[string]bool{"ok": true})
 	})

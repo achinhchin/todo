@@ -36,6 +36,11 @@
     <footer><span class="sp"></span><button type="button" id="cx" class="ghost">Cancel</button><button class="pri">Save</button></footer>
   </form>
 </dialog>
+<dialog id="qd"><form method="dialog"><h3>Move subtasks?</h3><p>This task has subtasks with times. Where should they go?</p>
+  <button value="s" data-q="s"><b>Stay in place</b><span>keep their current times</span><small></small></button>
+  <button value="l" data-q="l"><b>Snap left</b><span>keep distance from the start</span><small></small></button>
+  <button value="r" data-q="r"><b>Snap right</b><span>keep distance from the end</span><small></small></button>
+  <footer><span class="sp"></span><button value="" class="ghost">Cancel</button></footer></form></dialog>
 <div id="selbar" hidden><div class="sbt"><b id="sc"></b><span class="sp"></span><button class="pill" data-sx="1">Done</button></div><div class="sbb"><span>Shift</span><button data-sh="-60">−1h</button><button data-sh="-15">−15m</button><button data-sh="15">+15m</button><button data-sh="60">+1h</button><span class="sp"></span><button class="red" data-sd="1">Delete</button></div></div>
 <label id="hap" aria-hidden="true"><input type="checkbox" switch tabindex="-1"></label>
 <script src="app.js"></script>
