@@ -1,4 +1,4 @@
-:root{--grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .25 0 0 0 0 .2 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");--go:.2;--gb:multiply;--gl:#f9f5ed;--paper:#f4efe6;--card:#fbf8f2b3;--ink:#292521;--mute:#847a6d;--line:#e0d8c9;--acc:#b5523b;--hd:'Fraunces',Georgia,serif;--bd:'Source Serif 4',Georgia,serif;color-scheme:light}
+:root{--grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .25 0 0 0 0 .2 0 0 0 1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");--go:.2;--gb:multiply;--gl:#f9f5ed;--paper:#f4efe6;--card:#fbf8f2b3;--ink:#292521;--mute:#847a6d;--line:#e0d8c9;--acc:#b5523b;--unk:color-mix(in srgb,var(--mute) 30%,var(--paper));--hd:'Fraunces',Georgia,serif;--bd:'Source Serif 4',Georgia,serif;color-scheme:light}
 [hidden]{display:none!important}
 @media (prefers-color-scheme:dark){:root:not([data-th=light]){--gl:#1b1916;--paper:#1b1916;--card:#26231fb3;--ink:#ece5d8;--mute:#9a9083;--line:#38332c;--acc:#e07a5f;color-scheme:dark;--go:.06;--gb:screen}}
 :root[data-th=dark]{--gl:#1b1916;--paper:#1b1916;--card:#26231fb3;--ink:#ece5d8;--mute:#9a9083;--line:#38332c;--acc:#e07a5f;color-scheme:dark;--go:.06;--gb:screen}
@@ -11,7 +11,7 @@ header{position:sticky;top:0;z-index:10;background:color-mix(in srgb,var(--paper
 .top,.sub{display:flex;align-items:center;gap:10px;max-width:1280px;margin:auto}
 .sub{margin-top:8px;flex-wrap:wrap}
 h1{font:400 24px var(--hd);letter-spacing:-.02em;flex:1}h1 em{color:var(--acc);margin-left:2px}
-.dn{display:flex;align-items:center}.dn button{padding:4px 10px;font-size:22px;line-height:1}
+.dnav{display:flex;align-items:center}.dnav button{padding:4px 10px;font-size:22px;line-height:1}
 #dl{font:400 19px var(--hd);white-space:nowrap;border-bottom:1px dashed var(--line);padding:2px 4px!important}
 .pill{border:1px solid var(--line);border-radius:99px;padding:3px 12px;font-size:14px}.pill:disabled{opacity:.35}
 .sp{flex:1}
@@ -92,7 +92,7 @@ footer{display:flex;gap:6px;align-items:center;margin-top:4px}footer button{padd
   body[data-mob=split][data-sel] .col{padding-bottom:150px}
   .rw{gap:12px}
 }
-@media (max-width:380px){.top{gap:4px}.dn button{padding:4px 6px}.sub .seg button{padding:3px 9px}}
+@media (max-width:380px){.top{gap:4px}.dnav button{padding:4px 6px}.sub .seg button{padding:3px 9px}}
 .it{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .it.drag{z-index:5;background:var(--paper);box-shadow:0 12px 32px #0005;border-radius:12px;transition:none;scale:1.02}
 .it.open{flex-direction:column;gap:10px;cursor:default;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 12px 14px 16px;margin:6px 0;-webkit-user-select:text;user-select:text}
@@ -112,7 +112,6 @@ body[data-sel] main{padding-bottom:150px}
 .cb.on{background:var(--c,var(--acc));border-color:var(--c,var(--acc))}.it.nt .cb.on{background:var(--mute);border-color:var(--mute)}
 .cb.on::before{content:"";position:absolute;left:7px;top:3px;width:6px;height:11px;border:solid var(--paper);border-width:0 2.5px 2.5px 0;transform:rotate(45deg)}
 .it.dn:not(.open) b{text-decoration:line-through;text-decoration-color:var(--mute);color:var(--mute)}
-.it.dn{align-items:normal}
 .it:not(.open) .cb{align-self:center;margin-top:0}
 @media (max-width:819px){body[data-mob=split][data-view=day] .it:not(.open) .cb{align-self:flex-start}}
 .exh .cb{width:28px;height:28px;margin:0 4px 0 0}.exh .cb.on::before{left:9px;top:4px;width:7px;height:13px}
@@ -155,3 +154,7 @@ body[data-sel] main{padding-bottom:150px}
 .it.hs>div{flex:1}
 
 .it time{text-align:center;min-width:48px;line-height:1.25}.it time i{display:block;width:9px;height:1px;margin:4px auto;background:var(--mute);opacity:.7}
+
+.it .sli .cb.on{background:none;border-color:var(--c)}.sli .cb.on::before{border-color:var(--c)}
+.it .sli .cb.un{animation-name:cbs}.it .sli .cb.un::before{border-color:var(--c)}
+@keyframes cbs{from{transform:scale(1.12)}to{transform:scale(1)}}

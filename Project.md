@@ -107,6 +107,7 @@ This rule is implemented twice and **the two copies must stay in sync**: `durati
 - `bar()` draws the `.bars` wrapper → `lane()` of `<i>` segments, plus the now marker `<u>`, an hour grid made from `--h`, and the 6-hourly `.scale`.
 - **Clock ring:** `ring(sg)` is a 24h dial (00:00 at the top, clockwise). Segments past midnight wrap around. It draws tick marks at 0/6/12/18, and the centre shows the total.
 - `pie(agg)` is the proportional ring used only for All time. Both rings go through `svg()`, with r=15.9155 so the circumference is 100.
+- **Unknown time:** `tl()` also returns `un`, the minutes in `0..end` that no timed task owns (only when the day has a timed task). They are drawn first in the bar and the ring with the colour `--unk` and listed in the legend as "Unknown". Because the legend total is then the whole day (`end`, which is 1440 or more when something runs past midnight), each percentage is a share of the day, not of the tracked time. The ring centre still shows the tracked total. Week and all-time views are unchanged apart from the unknown fill in the day rings and bars. `un` is display only, so `durations()` does not need it.
 - **Done styling:** segments that are not done get class `f` (opacity .32) in both bar and ring. Done segments are drawn solid.
 - `col(k)` returns `hsl(index*137.508+18, 44%, 54%)`, using the index from `stats.titles`, with a hash as fallback.
 - **Now:** `nowM()` gives the current minute when viewing today, or minute+1440 when viewing yesterday, and null otherwise. The task whose segment contains it gets `.it.now` and a "now" pill.
@@ -134,7 +135,7 @@ This rule is implemented twice and **the two copies must stay in sync**: `durati
   - `shift(d)` clamps the shift so the whole selection stays inside 0–2879, then calls `/api/bulk`.
   - Delete (single or bulk) runs immediately, with no confirmation.
 
-**Subtask UI:** the expanded task has a `.subs` block: a mini division bar `.sbar` (parent range), a `.sr` row per subtask (checkbox, title input `.si`, time chip, ×) and `+ subtask`. A collapsed task shows `n/m subtasks` and the `.sbar`. Subtask rows are not selectable, draggable or sortable. Never reuse the class `.dn` for new things: it is the done-task class and also the date nav.
+**Subtask UI:** the expanded task has a `.subs` block: a mini division bar `.sbar` (parent range), a `.sr` row per subtask (checkbox, title input `.si`, time chip, ×) and `+ subtask`. A collapsed task shows `n/m subtasks` and the `.sbar`. Subtask rows are not selectable, draggable or sortable. The date nav is `.dnav`; it used to be `.dn`, which collided with the done-task class and stretched every button inside done tasks. Keep class names unique per role.
 
 **Time dialog** (`#dlg`, time only; also used for subtasks):
 - Controls: the No time / Fixed / Range switch, the `#pk` timeline picker, start/end `<input type=time>` with "next day" checkboxes, Cancel and Save.
