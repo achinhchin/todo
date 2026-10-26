@@ -94,7 +94,7 @@ $('#pk').onpointermove=e=>{if(pk.ps.has(e.pointerId))pk.ps.set(e.pointerId,e);
 $('#pk').onpointerup=$('#pk').onpointercancel=e=>{pk.ps.delete(e.pointerId);if(pk.pz){if(pk.ps.size<2)pk.pz=null;return}const d=pk.d;pk.d=null;if(!d||S.tm!='range'||d.mv||d.p)return;const m=d.a,{s,e:en}=d.c;
   s<0?setT(m,m+Math.max(30,pk.q)):en<0?setT(Math.min(m,s),Math.max(m,s)):Math.abs(m-s)<=Math.abs(m-en)?setT(Math.min(m,en-pk.mn),en):setT(s,m)};
 let wl=null,wt=0;
-addEventListener('wheel',e=>{if(!dlg.open||$('#qd').open)return;e.preventDefault();if($('#pk').hidden)return;
+addEventListener('wheel',e=>{if(!dlg.open||$('#qd').open)return;if(!e.target.closest?.('#pk')){Math.abs(e.deltaX)>Math.abs(e.deltaY)&&e.preventDefault();return}e.preventDefault();
   let x=e.deltaX,y=e.deltaY;if(e.shiftKey&&!x)x=y,y=0;const n=performance.now();if(!wl||n-wt>150)wl=e.ctrlKey||Math.abs(y)>=Math.abs(x)?'y':'x';wt=n;
   if(wl=='x'){win(pk.v0+x/pkB().width*pk.vw,pk.vw);drawPk()}else zoomAt(Math.exp(Math.max(-60,Math.min(60,y))*(e.ctrlKey?.012:.003)),e.clientX)},{passive:false});
 let hp=0;addEventListener('popstate',()=>{if(!dlg.open)return;hp=1;$('#qd').open&&$('#qd').close();dlg.close()});
