@@ -56,11 +56,12 @@ const cal=async m=>{S.cal=m;const d=pd(m),y=d.getFullYear(),mo=d.getMonth(),o=(d
 
 const setTm=m=>{S.tm=m;$('#ts').hidden=m=='none';$('#te').hidden=m!='range';document.querySelectorAll('[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t==m));drawPk()};
 const pk={},cur=()=>({s:S.tm=='none'?-1:tv(f.s.value,f.sn.checked,-1),e:S.tm=='range'?tv(f.e.value,f.en.checked,-1):-1});
-const drawPk=()=>{const el=$('#pk');if(!S.ed||(el.hidden=S.tm=='none'))return;const c=cur(),t=tl(S.tasks.filter(x=>x.user==S.ed.user&&x.id!=S.ed.id)),R=pk.R=el.clientWidth&&el.clientWidth<480?2:1,
-  sp=pk.sp=Math.ceil(Math.max(1440,t.end,c.s,c.e)/(180*R))*180*R,rs=sp/R,sg=(a,b,r0,st)=>{const x=Math.max(a,r0),y=Math.min(b,r0+rs);return y>x?`<i style="left:${(x-r0)/rs*100}%;width:${(y-x)/rs*100}%;${st}"></i>`:''},
+const drawPk=()=>{const el=$('#pk');if(!S.ed||(el.hidden=S.tm=='none'))return;const c=cur(),t=tl(S.tasks.filter(x=>x.user==S.ed.user&&x.id!=S.ed.id)),w=el.clientWidth,R=pk.R=!w?1:w<420?3:w<760?2:1,U=R==3?120:180,
+  sp=pk.sp=Math.ceil(Math.max(1440,t.end,c.s,c.e)/(U*R))*U*R,rs=sp/R,sg=(a,b,r0,st)=>{const x=Math.max(a,r0),y=Math.min(b,r0+rs);return y>x?`<i style="left:${(x-r0)/rs*100}%;width:${(y-x)/rs*100}%;${st}"></i>`:''},
   pin=(k,v,r0,on)=>v>=0&&on?`<em class="pin ${k}" style="left:${(v-r0)/rs*100}%"><span>${hm0(v)}</span></em>`:'';el.dataset.m=S.tm;
   el.innerHTML=[...Array(R)].map((_,i)=>{const r0=i*rs;return `<div class=pr data-r0=${r0} style="--h:${rs/60}">${t.sg.map(x=>sg(x.s,x.e,r0,`background:${col(x.k)}`)).join('')}${c.s>=0&&c.e>=0?sg(c.s,c.e,r0,'').replace('<i','<i class=sel'):''}${pin('s',c.s,r0,c.s>=r0&&(c.s<r0+rs||i==R-1))}${pin('e',c.e,r0,c.e>r0&&c.e<=r0+rs)}</div>`+
-    `<div class=scale>${[...Array(rs/180+1)].map((_,j)=>`<span style="left:${j*180/rs*100}%">${pad((r0/60+j*3)%24)}</span>`).join('')}</div>`}).join('')};
+    `<div class=scale>${[...Array(rs/U+1)].map((_,j)=>`<span style="left:${j*U/rs*100}%">${pad((r0+j*U)/60%24)}</span>`).join('')}</div>`}).join('')};
+addEventListener('resize',()=>dlg.open&&drawPk());
 const setT=(s,e)=>{s=Math.max(0,Math.min(2865,s));f.s.value=hm0(s);f.sn.checked=s>=1440;if(e!=null){e=Math.min(2879,Math.max(e,s+15));f.e.value=hm0(e);f.en.checked=e>=1440}drawPk()};
 const pkM=e=>{const y=e.clientY+(pk.d?.dy||0),r=[...$('#pk').querySelectorAll('.pr')].map(r=>[r,r.getBoundingClientRect()]).sort((a,b)=>Math.abs(y-a[1].y-a[1].height/2)-Math.abs(y-b[1].y-b[1].height/2))[0],b=r[1];
   return Math.round((+r[0].dataset.r0+Math.min(1,Math.max(0,(e.clientX-b.left)/b.width))*pk.sp/pk.R)/15)*15};

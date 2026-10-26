@@ -120,7 +120,7 @@ This rule is implemented twice and **the two copies must stay in sync**: `durati
 **Time dialog** (`#dlg`, time only):
 - Controls: the No time / Fixed / Range switch, the `#pk` timeline picker, start/end `<input type=time>` with "next day" checkboxes, Cancel and Save.
 - Picker:
-  - `drawPk()` draws one row, or two rows of 12h when the dialog is narrower than 480px.
+  - `drawPk()` draws 1 row, 2 rows of 12h (picker < 760px) or 3 rows of 8h with 2-hour labels (picker < 420px, i.e. phones), and redraws on resize.
   - It shows the user's other segments dimmed, plus `.sel` and drag pins (`em.pin.s` above the row, `em.pin.e` below the scale).
   - Times snap to 15 min via `pkM()`.
   - In fixed mode a tap or drag sets the time. In range mode a drag selects a span, and a tap moves the nearer edge.

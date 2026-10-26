@@ -58,11 +58,11 @@ h3{font:400 19px var(--hd);margin-bottom:10px}
 .wb{min-width:0}.wb small{display:block;font-size:12px;color:var(--mute);margin-top:3px;font-variant-numeric:tabular-nums}.wb .bar{height:10px}
 #pk{padding:0 10px;touch-action:none;user-select:none;-webkit-user-select:none;cursor:crosshair}.pr{height:34px;overflow:visible;border-radius:7px}.pr i{position:absolute;top:9px;bottom:9px;opacity:.5;border-radius:2px}
 .pr .sel{top:0;bottom:0;opacity:1;background:color-mix(in srgb,var(--acc) 30%,transparent);box-shadow:inset 0 0 0 2px var(--acc);border-radius:6px}
-#pk .pr{margin-top:30px}#pk[data-m=range] .scale{margin-bottom:34px}
+#pk .pr{margin-top:30px}#pk[data-m=range] .scale:last-child{margin-bottom:30px}
 .pin{position:absolute;top:-30px;bottom:0;width:0;z-index:2;cursor:grab}.pin::before{content:"";position:absolute;left:-1px;width:2px;top:0;bottom:0;background:var(--acc)}
 .pin span{position:absolute;top:0;left:0;transform:translateX(-50%);padding:4px 9px;border-radius:99px;background:var(--acc);color:var(--paper);font:500 12px/1 var(--bd);font-variant-numeric:tabular-nums;white-space:nowrap;box-shadow:0 2px 8px #0003}
 .pin span::after{content:"";position:absolute;inset:-10px -6px}
-.pin.e{top:0;bottom:-50px}.pin.e span{top:auto;bottom:0}
+.pin.e{top:0;bottom:-44px}.pin.e span{top:auto;bottom:0}
 dialog{margin:auto;border:1px solid var(--line);border-radius:18px;background:var(--paper);color:var(--ink);padding:0;width:min(620px,calc(100vw - 32px));box-shadow:0 20px 60px #0004}
 dialog::backdrop{background:#2b262255;backdrop-filter:blur(2px)}
 form{display:flex;flex-direction:column;gap:12px;padding:18px}
