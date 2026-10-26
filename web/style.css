@@ -143,6 +143,15 @@ body[data-sel] main{padding-bottom:150px}
 .it.dn:not(.open):not(.sel):not(.now){background:color-mix(in srgb,var(--ink) 5%,transparent);border-radius:10px}
 .bk{font-size:26px;line-height:1;padding:0 6px;color:var(--mute);text-decoration:none}.bk:hover{color:var(--ink)}
 
-.sl{display:flex;flex-direction:column;gap:6px;margin-top:6px;padding-left:2px}.sli{display:flex;align-items:center;gap:8px;font-size:15px;line-height:1.3}
-.it .sli .cb{width:18px;height:18px;border-radius:5px;margin:0;border-width:1.5px}.it .sli .cb::after{inset:-6px}.sli .cb.on::before{left:4.5px;top:.5px;width:4px;height:8px;border-width:0 2px 2px 0}
-.sli em{font-style:normal;color:var(--mute);font-size:13px;font-variant-numeric:tabular-nums;white-space:nowrap}.sli span{min-width:0;overflow-wrap:anywhere}.sli.sdn span{text-decoration:line-through;text-decoration-color:var(--mute);color:var(--mute)}
+.sh{display:flex;align-items:center;gap:10px;margin-top:4px}.sh .sbar{flex:1;margin:0;height:6px;max-width:180px}.it .sh .sc{margin-top:0}
+.sl{display:flex;flex-direction:column;margin:6px 0 2px 7px;padding-left:12px;border-left:2px solid color-mix(in srgb,var(--c) 50%,transparent)}
+.sli{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:15px;line-height:1.3}.sli+.sli{border-top:1px dotted var(--line)}
+.it .sli .cb{width:18px;height:18px;border-radius:50%;margin:0;border-width:1.5px}.it .sli .cb::after{inset:-6px}.it .sli .cb.on{background:var(--c);border-color:var(--c)}
+.sli .cb.on::before{left:4.5px;top:1px;width:4px;height:8px;border-width:0 2px 2px 0}
+.sli span{flex:1;min-width:0;overflow-wrap:anywhere}.sli.sdn span{text-decoration:line-through;text-decoration-color:var(--mute);color:var(--mute)}
+.sli em{font-style:normal;font-size:12.5px;color:var(--mute);font-variant-numeric:tabular-nums;white-space:nowrap;padding:1px 8px;border-radius:99px;background:color-mix(in srgb,var(--c) 14%,transparent)}
+.it.dn .sl{opacity:.8}
+.it.hs>.cb{align-self:flex-start;margin-top:1px}
+.it.hs>div{flex:1}
+
+.it time{text-align:center;min-width:48px;line-height:1.25}.it time i{display:block;width:9px;height:1px;margin:4px auto;background:var(--mute);opacity:.7}
