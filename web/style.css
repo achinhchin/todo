@@ -138,3 +138,4 @@ body[data-sel] main{padding-bottom:150px}
 @media (prefers-reduced-motion:reduce){.cb.pop,.cb.pop::before{animation:none}}
 
 .it.dn:not(.open):not(.sel):not(.now){background:color-mix(in srgb,var(--ink) 5%,transparent);border-radius:10px}
+.bk{font-size:26px;line-height:1;padding:0 6px;color:var(--mute);text-decoration:none}.bk:hover{color:var(--ink)}

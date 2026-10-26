@@ -276,6 +276,7 @@ func main() {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		w.Write([]byte(s))
 	})
+	http.HandleFunc("GET /back", func(w http.ResponseWriter, r *http.Request) { http.Redirect(w, r, cfg.Login+"/", 302) })
 	log.Printf("serving on :%d", cfg.Port)
 	var h http.Handler = gate(cfg.Auth, cfg.Login, http.DefaultServeMux)
 	if cfg.Test {
